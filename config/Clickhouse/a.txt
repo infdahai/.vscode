@@ -1,0 +1,62 @@
+--param_foo=2  -q "SELECT approved_at,total,avg(total) OVER ( ROWS BETWEEN {foo:Int64} PRECEDING AND CURRENT ROW) FROM (SELECT toStartOfMinute(approved_at) as approved_at,sum(price) as total FROM products GROUP BY approved_at ORDER BY approved_at limit {foo:Int64})"
+
+--config ../programs/server/config.xml
+
+b receiveQuery
+
+b executeQuery
+
+b executeQueryImpl
+
+processParsedSingleQuery
+
+ReplaceQueryParameterVisitor
+
+┌─explain────────────────────────────────────────────────────────────────────────┐
+│ Expression (Projection)                                                        │
+│   Expression (Before ORDER BY)                                                 │
+│     Window (Window step for window 'ROWS BETWEEN 2 PRECEDING AND CURRENT ROW') │
+│       Expression (Before window functions)                                     │
+│         Expression (Projection)                                                │
+│           Limit (preliminary LIMIT (without OFFSET))                           │
+│             Sorting (Sorting for ORDER BY)                                     │
+│               Expression (Before ORDER BY)                                     │
+│                 Aggregating                                                    │
+│                   Expression (Before GROUP BY)                                 │
+│                     ReadFromPreparedSource (Read from NullSource)              │
+└────────────────────────────────────────────────────────────────────────────┘────
+
+2023.04.25 02:19:11.977916 [ 1244663 ] {8ecfed12-297e-4cb0-94d7-5125fdee2960} <Error> executeQuery: Code: 456. DB::Exception: Query parameter `foo` was not set. (UNKNOWN_QUERY_PARAMETER) (version 23.4.1.1) (from 127.0.0.1:47432) (in query: SELECT approved_at, total, avg(total) OVER (ROWS BETWEEN {foo:Int64} PRECEDING AND CURRENT ROW) FROM (SELECT toStartOfMinute(approved_at) AS approved_at, sum(price) AS total FROM products GROUP BY approved_at ORDER BY approved_at ASC LIMIT _CAST(2, 'Int64'))), Stack trace (when copying this message, always include the lines below):
+
+0. /root/Workspace/proj/finish_proj/ClickHouse/contrib/llvm-project/libcxx/include/exception:134: std::exception::capture() @ 0x19ffba82 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+1. /root/Workspace/proj/finish_proj/ClickHouse/contrib/llvm-project/libcxx/include/exception:112: std::exception::exception[abi:v15000]() @ 0x19ffba4d in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+2. /root/Workspace/proj/finish_proj/ClickHouse/base/poco/Foundation/src/Exception.cpp:27: Poco::Exception::Exception(String const&, int) @ 0x3242c400 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+3. /root/Workspace/proj/finish_proj/ClickHouse/src/Common/Exception.cpp:89: DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x22abf0ee in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+4. /root/Workspace/proj/finish_proj/ClickHouse/src/Common/Exception.h:54: DB::Exception::Exception(String&&, int, bool) @ 0x19feed8a in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+5. /root/Workspace/proj/finish_proj/ClickHouse/src/Common/Exception.h:81: DB::Exception::Exception<String>(int, FormatStringHelperImpl<std::type_identity<String>::type>, String&&) @ 0x19feecb3 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+6. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:290: DB::QueryNormalizer::visit(std::shared_ptr<DB::IAST>&, DB::QueryNormalizer::Data&) @ 0x2ba412f8 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+7. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:252: DB::QueryNormalizer::visitChildren(DB::IAST*, DB::QueryNormalizer::Data&) @ 0x2ba41f6a in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+8. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:242: DB::QueryNormalizer::visitChildren(DB::IAST*, DB::QueryNormalizer::Data&) @ 0x2ba41dc9 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+9. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:300: DB::QueryNormalizer::visit(std::shared_ptr<DB::IAST>&, DB::QueryNormalizer::Data&) @ 0x2ba41467 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+10. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:252: DB::QueryNormalizer::visitChildren(DB::IAST*, DB::QueryNormalizer::Data&) @ 0x2ba41f6a in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+11. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:300: DB::QueryNormalizer::visit(std::shared_ptr<DB::IAST>&, DB::QueryNormalizer::Data&) @ 0x2ba41467 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+12. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:173: DB::QueryNormalizer::visit(DB::ASTSelectQuery&, std::shared_ptr<DB::IAST> const&, DB::QueryNormalizer::Data&) @ 0x2ba417fa in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+13. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.cpp:286: DB::QueryNormalizer::visit(std::shared_ptr<DB::IAST>&, DB::QueryNormalizer::Data&) @ 0x2ba411da in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+14. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/QueryNormalizer.h:77: DB::QueryNormalizer::visit(std::shared_ptr<DB::IAST>&) @ 0x2b9d4b60 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+15. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/TreeRewriter.cpp:1437: DB::TreeRewriter::normalize(std::shared_ptr<DB::IAST>&, std::unordered_map<String, std::shared_ptr<DB::IAST>, std::hash<String>, std::equal_to<String>, std::allocator<std::pair<String const, std::shared_ptr<DB::IAST>>>>&, std::unordered_set<String, std::hash<String>, std::equal_to<String>, std::allocator<String>> const&, bool, DB::Settings const&, bool, std::shared_ptr<DB::Context const>, bool) @ 0x2b9c6bcd in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+16. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/TreeRewriter.cpp:1212: DB::TreeRewriter::analyzeSelect(std::shared_ptr<DB::IAST>&, DB::TreeRewriterResult&&, DB::SelectQueryOptions const&, std::vector<DB::TableWithColumnNamesAndTypes, std::allocator<DB::TableWithColumnNamesAndTypes>> const&, std::vector<String, std::allocator<String>> const&, std::shared_ptr<DB::TableJoin>, bool, std::unordered_map<String, String, std::hash<String>, std::equal_to<String>, std::allocator<std::pair<String const, String>>>, std::unordered_map<String, String, std::hash<String>, std::equal_to<String>, std::allocator<std::pair<String const, String>>>) const @ 0x2b9c4949 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+17. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/InterpreterSelectQuery.cpp:600: DB::InterpreterSelectQuery::InterpreterSelectQuery(std::shared_ptr<DB::IAST> const&, std::shared_ptr<DB::Context> const&, std::optional<DB::Pipe>, std::shared_ptr<DB::IStorage> const&, DB::SelectQueryOptions const&, std::vector<String, std::allocator<String>> const&, std::shared_ptr<DB::StorageInMemoryMetadata const> const&, std::shared_ptr<DB::PreparedSets>)::$_0::operator()(bool) const @ 0x2b522ac3 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+18. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/InterpreterSelectQuery.cpp:767: DB::InterpreterSelectQuery::InterpreterSelectQuery(std::shared_ptr<DB::IAST> const&, std::shared_ptr<DB::Context> const&, std::optional<DB::Pipe>, std::shared_ptr<DB::IStorage> const&, DB::SelectQueryOptions const&, std::vector<String, std::allocator<String>> const&, std::shared_ptr<DB::StorageInMemoryMetadata const> const&, std::shared_ptr<DB::PreparedSets>) @ 0x2b520382 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+19. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/InterpreterSelectQuery.cpp:202: DB::InterpreterSelectQuery::InterpreterSelectQuery(std::shared_ptr<DB::IAST> const&, std::shared_ptr<DB::Context> const&, DB::SelectQueryOptions const&, std::vector<String, std::allocator<String>> const&) @ 0x2b51cb06 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+20. /root/Workspace/proj/finish_proj/ClickHouse/contrib/llvm-project/libcxx/include/__memory/unique_ptr.h:714: std::__unique_if<DB::InterpreterSelectQuery>::__unique_single std::make_unique[abi:v15000]<DB::InterpreterSelectQuery, std::shared_ptr<DB::IAST> const&, std::shared_ptr<DB::Context>&, DB::SelectQueryOptions&, std::vector<String, std::allocator<String>> const&>(std::shared_ptr<DB::IAST> const&, std::shared_ptr<DB::Context>&, DB::SelectQueryOptions&, std::vector<String, std::allocator<String>> const&) @ 0x2b6156a1 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+21. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/InterpreterSelectWithUnionQuery.cpp:254: DB::InterpreterSelectWithUnionQuery::buildCurrentChildInterpreter(std::shared_ptr<DB::IAST> const&, std::vector<String, std::allocator<String>> const&) @ 0x2b612ee9 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+22. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/InterpreterSelectWithUnionQuery.cpp:152: DB::InterpreterSelectWithUnionQuery::InterpreterSelectWithUnionQuery(std::shared_ptr<DB::IAST> const&, std::shared_ptr<DB::Context>, DB::SelectQueryOptions const&, std::vector<String, std::allocator<String>> const&) @ 0x2b612365 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+23. /root/Workspace/proj/finish_proj/ClickHouse/contrib/llvm-project/libcxx/include/__memory/unique_ptr.h:714: std::__unique_if<DB::InterpreterSelectWithUnionQuery>::__unique_single std::make_unique[abi:v15000]<DB::InterpreterSelectWithUnionQuery, std::shared_ptr<DB::IAST>&, std::shared_ptr<DB::Context>&, DB::SelectQueryOptions const&>(std::shared_ptr<DB::IAST>&, std::shared_ptr<DB::Context>&, DB::SelectQueryOptions const&) @ 0x2b4cc954 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+24. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/InterpreterFactory.cpp:148: DB::InterpreterFactory::get(std::shared_ptr<DB::IAST>&, std::shared_ptr<DB::Context>, DB::SelectQueryOptions const&) @ 0x2b4ca568 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+25. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/executeQuery.cpp:663: DB::executeQueryImpl(char const*, char const*, std::shared_ptr<DB::Context>, bool, DB::QueryProcessingStage::Enum, DB::ReadBuffer*) @ 0x2bac0cc6 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+26. /root/Workspace/proj/finish_proj/ClickHouse/src/Interpreters/executeQuery.cpp:1166: DB::executeQuery(String const&, std::shared_ptr<DB::Context>, bool, DB::QueryProcessingStage::Enum) @ 0x2babd3a4 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+27. /root/Workspace/proj/finish_proj/ClickHouse/src/Server/TCPHandler.cpp:420: DB::TCPHandler::runImpl() @ 0x2cee9e1f in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+28. /root/Workspace/proj/finish_proj/ClickHouse/src/Server/TCPHandler.cpp:2036: DB::TCPHandler::run() @ 0x2cefb805 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+29. /root/Workspace/proj/finish_proj/ClickHouse/base/poco/Net/src/TCPServerConnection.cpp:43: Poco::Net::TCPServerConnection::start() @ 0x322688f9 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+30. /root/Workspace/proj/finish_proj/ClickHouse/base/poco/Net/src/TCPServerDispatcher.cpp:115: Poco::Net::TCPServerDispatcher::run() @ 0x3226913c in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse
+31. /root/Workspace/proj/finish_proj/ClickHouse/base/poco/Foundation/src/ThreadPool.cpp:188: Poco::PooledThread::run() @ 0x324ab654 in /root/Workspace/proj/finish_proj/ClickHouse/build/programs/clickhouse

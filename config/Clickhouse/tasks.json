@@ -1,0 +1,21 @@
+{
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "cmake_debug",
+      "command": "cd ${workspaceFolder}/build; cmake ..  -DCMAKE_BUILD_TYPE=Debug -DENABLE_JEMALLOC=0 -DENABLE_LIBRARIES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=YES"
+    },
+    {
+      "type": "shell",
+      "label": "ck_ninja",
+      "dependsOn": "cmake_debug",
+      "command": "cd ${workspaceFolder}/build; ninja -j16 clickhouse-client clickhouse-server"
+    },
+    {
+      "type": "shell",
+      "label": "Pull Master",
+      "command": "git pull && git submodule update --init --recursive"
+    }
+  ],
+  "version": "2.0.0"
+}

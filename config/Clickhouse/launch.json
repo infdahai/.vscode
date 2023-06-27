@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Clickhouse Server",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/programs/clickhouse-server",
+      "args": [
+        // "--param_foo=2",
+        // "-q",
+        // "SELECT approved_at,total,avg(total) OVER ( ROWS BETWEEN {foo:Int64} PRECEDING AND CURRENT ROW) FROM (SELECT toStartOfMinute(approved_at) as approved_at,sum(price) as total FROM products GROUP BY approved_at ORDER BY approved_at limit {foo:Int64})"
+        "--config",
+        "${workspaceFolder}/programs/server/config.xml"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/build",
+      // "preLaunchTask": "ck_ninja",
+      "console": "internalConsole"
+    },
+  ]
+}

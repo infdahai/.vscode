@@ -1,0 +1,16 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "py_build",
+            "command": "cd ${workspaceFolder};./x.py build -DCMAKE_BUILD_TYPE=Debug -DENABLE_OPENSSL=ON --ghproxy -j24"
+            //  -DDISABLE_JEMALLOC=ON -DUSE_LUAJIT=OFF
+        },
+        {
+            "type": "shell",
+            "label": "py_test",
+            "command": "cd ${workspaceFolder};./x.py build --unittest -DCMAKE_BUILD_TYPE=Debug  -j24"
+        },
+    ],
+    "version": "2.0.0"
+}

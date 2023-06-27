@@ -1,0 +1,9 @@
+{
+        "yaml.schemas": {
+                "https://json.schemastore.org/github-issue-config.json": "file:///root/Workspace/proj/finish_proj/incubator-kvrocks/.github/ISSUE_TEMPLATE/config.yml"
+        },
+        "lldb.displayFormat": "auto",
+        "lldb.showDisassembly": "auto",
+        "lldb.dereferencePointers": true,
+        "lldb.consoleMode": "commands"
+}
